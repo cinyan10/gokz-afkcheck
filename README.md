@@ -6,7 +6,7 @@
 
 - Detects AFK players by monitoring movement and view angles
 - Kicks both spectators and active players after configurable timeouts
-- Warns players before kicking (30s, 10s, 5s notices)
+- Warns players before kicking (5min, 1min, 15s notices)
 - Supports GOKZ timer and pause states
 - Optional admin immunity (`gokz_afk_kick_admins`)
 - Tier-based exclusion (skip AFK checks on high-tier maps)
@@ -14,4 +14,4 @@
 
 ## 🧑‍💻 Credits
 
-- **Original Author**: [LynchMus]([https://steamcommunity.com/id/LynchMus](https://github.com/himenekocn))
+- **Original Author**: [LynchMus](https://github.com/himenekocn)
