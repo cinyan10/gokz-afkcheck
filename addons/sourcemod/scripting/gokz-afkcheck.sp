@@ -41,10 +41,10 @@ PlayerAfkData pdata[MAXPLAYERS + 1];
 public Plugin myinfo =
 {
     name = "GOKZ Afk Check Plugin",
-    author = "LynchMus (modified by Cinyan10)",
+    author = "LynchMus && Cinyan10)",
     description = "AFK Check Plugin via GlobalAPI",
     version = "1.1",
-    url = "himeneko.cn"
+    url = "https://github.com/cinyan10/gokz-afkcheck"
 };
 
 public void OnPluginStart()
@@ -120,14 +120,16 @@ public void OnMapStart()
 
 public Action PlayerChecks(Handle timer)
 {
-    if (gI_MapTier >= gokz_afk_kick_tier_level_max.IntValue)
-        return Plugin_Continue;
 
     for (int client = 1; client <= MaxClients; client++)
-    {
+    {        
         if (IsValidClient(client) && !IsFakeClient(client))
         {
             if (IsClientAdmin(client) && !gokz_afk_kick_admins.BoolValue)
+                continue;
+            
+            // re check here
+            if (gI_MapTier >= gokz_afk_kick_tier_level_max.IntValue && GOKZ_GetTimerRunning(client) && GOKZ_GetTime(client) > gokz_afk_kick_time_start.FloatValue)
                 continue;
 
             if ((GetClientTeam(client) == CS_TEAM_NONE || GetClientTeam(client) == CS_TEAM_SPECTATOR) && gokz_afk_kick_time_spec_bool.BoolValue)
@@ -138,7 +140,7 @@ public Action PlayerChecks(Handle timer)
                 if (timeLeft == 300 || timeLeft == 60 || timeLeft == 15)
                 {
                     GOKZ_PrintToChat(client, true, "{default}You will be kicked in {darkred}%ds {default}due to being AFK.", timeLeft);
-                    EmitSoundToClient(client, "buttons/button10.wav", _, _, _, _, 0.8);
+                    GOKZ_PlayErrorSound(client);
                 }
                 else if (pdata[client].afk_time >= gokz_afk_kick_time_spec.IntValue)
                 {
@@ -181,7 +183,7 @@ public Action PlayerChecks(Handle timer)
                         if (timeLeft == 300 || timeLeft == 60 || timeLeft == 15)
                         {
                             GOKZ_PrintToChat(client, true, "{default}You will be kicked in {darkred}%ds {default}due to being AFK.", timeLeft);
-                            EmitSoundToClient(client, "buttons/button10.wav", _, _, _, _, 0.8);
+                            GOKZ_PlayErrorSound(client);
                         }
                         else if (pdata[client].afk_time > gokz_afk_kick_time.IntValue)
                         {
@@ -211,15 +213,15 @@ static void CreateConVars()
     AutoExecConfig_SetCreateFile(true);
 
     gokz_afk_kick_time_spec_bool = AutoExecConfig_CreateConVar("gokz_afk_kick_time_spec_bool", "1", "Kick spectators for being AFK.", _, true, 0.0, true, 1.0);
-    gokz_afk_kick_time_spec = AutoExecConfig_CreateConVar("gokz_afk_kick_time_spec", "960", "Kick spectators after this many seconds AFK.", _, true, 60.0);
+    gokz_afk_kick_time_spec = AutoExecConfig_CreateConVar("gokz_afk_kick_time_spec", "900", "Kick spectators after this many seconds AFK.", _, true, 60.0);
     gokz_afk_kick_time_bool = AutoExecConfig_CreateConVar("gokz_afk_kick_time_bool", "1", "Kick players for being AFK.", _, true, 0.0, true, 1.0);
-    gokz_afk_kick_time = AutoExecConfig_CreateConVar("gokz_afk_kick_time", "480", "Kick players after this many seconds AFK.", _, true, 60.0);
+    gokz_afk_kick_time = AutoExecConfig_CreateConVar("gokz_afk_kick_time", "900", "Kick players after this many seconds AFK.", _, true, 60.0);
     gokz_afk_kick_time_start_bool = AutoExecConfig_CreateConVar("gokz_afk_kick_time_start_bool", "1", "Enable kicking players shortly after timer start.", _, true, 0.0, true, 1.0);
-    gokz_afk_kick_time_start = AutoExecConfig_CreateConVar("gokz_afk_kick_time_start", "960", "If timer is running and under this time, allow AFK kick.", _, true, 60.0);
-    gokz_afk_kick_pause_is_afk = AutoExecConfig_CreateConVar("gokz_afk_kick_pause_is_afk", "0", "Whether paused counts as AFK.", _, true, 0.0, true, 1.0);
+    gokz_afk_kick_time_start = AutoExecConfig_CreateConVar("gokz_afk_kick_time_start", "900", "If timer is running and under this time, allow AFK kick.", _, true, 60.0);
+    gokz_afk_kick_pause_is_afk = AutoExecConfig_CreateConVar("gokz_afk_kick_pause_is_afk", "1", "Whether paused counts as AFK.", _, true, 0.0, true, 1.0);
     gokz_afk_kick_tier_level_max = AutoExecConfig_CreateConVar("gokz_afk_kick_tier_level_max", "5", "Don’t kick on maps of this tier or higher.", _, true, 1.0, true, 7.0);
     gokz_afk_check_eyeangle = AutoExecConfig_CreateConVar("gokz_afk_check_eyeangle", "1", "Check player view angles for AFK detection.", _, true, 0.0, true, 1.0);
-    gokz_afk_kick_admins = AutoExecConfig_CreateConVar("gokz_afk_kick_admins", "0", "Kick admins when AFK (0 = no, 1 = yes).", _, true, 0.0, true, 1.0);
+    gokz_afk_kick_admins = AutoExecConfig_CreateConVar("gokz_afk_kick_admins", "1", "Kick admins when AFK (0 = no, 1 = yes).", _, true, 0.0, true, 1.0);
 
     AutoExecConfig_ExecuteFile();
     AutoExecConfig_CleanFile();
